@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet App Redesign</title>
+
+  <style>
+    :root {
+      --blue: #008cff;
+      --blue-dark: #0070cc;
+      --blue-soft: #e5f4ff;
+      --bg: #f4f5f7;
+      --border: #e2e4ea;
+      --text-main: #1f2933;
+      --text-muted: #6b7280;
+      --orange: #ff7b39;
+      --radius-card: 18px;
+      --shadow-soft: 0 6px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: #111827;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* FRAME APLIKASI */
+    .app {
+      background: var(--bg);
+      width: 100%;
+      max-width: 428px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+    }
+
+    .status-bar {
+      background: var(--blue);
+      color: #fff;
+      padding: 8px 18px 4px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-bar__right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      opacity: 0.9;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #10b981;
+      display: inline-block;
+      margin-right: 3px;
+    }
+
+    .app-bar {
+      background: var(--blue);
+      color: #fff;
+      padding: 8px 18px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-bar__left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .app-bar__title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .app-bar__action {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      background: transparent;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .app-bar__action:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 12px 80px;
+    }
+
+    /* LAYAR / SCREEN */
+    .screen {
+      display: none;
+      padding-bottom: 24px;
+    }
+
+    .screen--active {
+      display: block;
+    }
+
+    .search-box {
+      margin: 6px 0 14px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 14px 10px 34px;
+      font-size: 13px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.16);
+    }
+
+    .search-box input::placeholder {
+      color: #9ca3af;
+    }
+
+    .search-box input:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 1px;
+    }
+
+    .search-box-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    /* CARD UMUM */
+    .card {
+      background: #fff;
+      border-radius: var(--radius-card);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .card--banner {
+      background: linear-gradient(135deg, #ff7b39, #ffb64d);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card__title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card__subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .card__subtitle--light {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* BUTTON */
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+
+    .btn--primary {
+      background: #ffffff;
+      color: var(--blue);
+    }
+
+    .btn--outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .btn--ghost {
+      background: #fff;
+      color: var(--blue);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .btn--blue {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn--full {
+      width: 100%;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:hover {
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid #111827;
+      outline-offset: 2px;
+    }
+
+    /* HOME SCREEN */
+    .balance-card {
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      color: #fff;
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 12px;
+    }
+
+    .balance-card__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .balance-card__label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .balance-card__amount {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .balance-card__actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      text-align: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .quick-action-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .quick-action button {
+      all: unset;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .quick-action button:focus-visible .quick-action-icon {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px 10px;
+      text-align: center;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    .service-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .service-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: var(--blue-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--blue-dark);
+    }
+
+    .news-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: #fff;
+      margin-bottom: 4px;
+    }
+
+    .news-item__brand {
+      font-weight: 600;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+
+    .news-item__text {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .news-item__icon {
+      font-size: 15px;
+      color: #ef4444;
+    }
+
+    .protection-card {
+      text-align: center;
+      padding: 14px 16px 18px;
+    }
+
+    .protection-card__badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    /* AKTIVITAS */
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .activity-month {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .activity-item {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .activity-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: calc(100% - 80px);
+    }
+
+    .activity-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--blue-dark);
+    }
+
+    .activity-text-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .activity-text-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .activity-amount {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* DOMPET */
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 16px 2px 6px;
+    }
+
+    .wallet-card {
+      background: linear-gradient(135deg, #0891b2, #3b82f6);
+      color: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      padding: 14px 16px 16px;
+    }
+
+    .wallet-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .wallet-card__label {
+      font-size: 11px;
+      opacity: 0.95;
+      margin-bottom: 3px;
+    }
+
+    .wallet-card__title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .wallet-card__actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .wallet-curve {
+      height: 60px;
+      margin-top: 10px;
+      background: radial-gradient(circle at 50% -30px, #e5e7eb 0, #f9fafb 60%);
+      border-radius: 999px 999px 0 0;
+      position: relative;
+    }
+
+    .wallet-curve::before {
+      content: "WALLET";
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      color: #d1d5db;
+      font-weight: 600;
+    }
+
+    /* PROFIL */
+    .profile-header {
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    .segmented-control {
+      background: rgba(15, 23, 42, 0.1);
+      padding: 3px;
+      border-radius: 999px;
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .segmented-control button {
+      border-radius: 999px;
+      border: none;
+      padding: 5px 14px;
+      font-size: 11px;
+      cursor: pointer;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .segmented-control button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue-dark);
+      font-weight: 600;
+    }
+
+    .profile-card {
+      margin-top: -26px;
+      border-radius: 22px;
+      padding-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .profile-main {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #9ca3af;
+    }
+
+    .profile-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .profile-phone {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .profile-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .profile-stat-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .profile-stat-value {
+      font-weight: 600;
+      color: var(--blue-dark);
+    }
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .menu-item {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .menu-item__left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-item__icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: var(--blue-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--blue-dark);
+    }
+
+    .menu-item__title {
+      font-size: 13px;
+    }
+
+    .menu-item__subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .menu-item__chevron {
+      font-size: 16px;
+      color: #d1d5db;
+    }
+
+    /* BOTTOM NAVIGATION */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 428px;
+      background: #ffffff;
+      padding: 4px 14px 10px;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 40;
+    }
+
+    .bottom-nav__item {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .bottom-nav__icon {
+      font-size: 18px;
+    }
+
+    .bottom-nav__item--active {
+      color: var(--blue-dark);
+      font-weight: 600;
+    }
+
+    .bottom-nav__pay {
+      position: relative;
+      top: -18px;
+      flex: 0 0 auto;
+    }
+
+    .pay-button {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.6);
+      cursor: pointer;
+    }
+
+    .pay-button:focus-visible {
+      outline: 3px solid #111827;
+      outline-offset: 3px;
+    }
+
+    /* MODAL PAY */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop--open {
+      display: flex;
+    }
+
+    .modal {
+      background: #ffffff;
+      width: 92%;
+      max-width: 360px;
+      border-radius: 20px;
+      padding: 18px 18px 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal__title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal__close {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      color: #9ca3af;
+    }
+
+    .modal__content {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .qr-placeholder {
+      border-radius: 16px;
+      border: 1px dashed #d1d5db;
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .qr-code-box {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 8px;
+      border-radius: 16px;
+      background: repeating-linear-gradient(
+          45deg,
+          #dbeafe,
+          #dbeafe 8px,
+          #eff6ff 8px,
+          #eff6ff 16px
+        );
+    }
+
+    .modal__actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* UTILITIES */
+    .mt-8 {
+      margin-top: 8px;
+    }
+
+    .mt-12 {
+      margin-top: 12px;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    @media (max-width: 380px) {
+      .balance-card__actions {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" role="application">
+    <!-- STATUS & APP BAR -->
+    <header>
+      <div class="status-bar">
+        <div>01.22</div>
+        <div class="status-bar__right" aria-hidden="true">
+          <span class="status-dot"></span>4G • 87%
+        </div>
+      </div>
+
+      <div class="app-bar">
+        <div class="app-bar__left">
+          <div class="app-logo">DANA PROTECTION</div>
+        </div>
+        <div class="app-bar__title" id="appBarTitle">Beranda</div>
+        <button class="app-bar__action" type="button" aria-label="Aksi tambahan">
+          +
+        </button>
+      </div>
+    </header>
+
+    <!-- LAYAR -->
+    <main id="screens">
+      <!-- BERANDA -->
+      <section
+        id="screen-home"
+        class="screen screen--active"
+        aria-labelledby="tab-home"
+      >
+        <div class="search-box">
+          <span class="search-box-icon">🔍</span>
+          <input
+            type="search"
+            aria-label="Cari di Beranda"
+            placeholder="Mau bayar apa hari ini?"
+          />
+        </div>
+
+        <div class="balance-card" aria-label="Ringkasan saldo">
+          <div class="balance-card__top">
+            <div>
+              <div class="balance-card__label">Saldo Dompet</div>
+              <div class="balance-card__amount">Rp 309</div>
+            </div>
+            <button
+              class="btn btn--outline"
+              type="button"
+              id="btnToggleBalance"
+            >
+              👁 Sembunyikan
+            </button>
+          </div>
+
+          <div class="balance-card__actions">
+            <div class="quick-action">
+              <button type="button" data-action="isi-saldo">
+                <div class="quick-action-icon">＋</div>
+                <div>Isi Saldo</div>
+              </button>
+            </div>
+            <div class="quick-action">
+              <button type="button" data-action="minta">
+                <div class="quick-action-icon">↥</div>
+                <div>Minta</div>
+              </button>
+            </div>
+            <div class="quick-action">
+              <button type="button" data-action="kirim">
+                <div class="quick-action-icon">↧</div>
+                <div>Kirim</div>
+              </button>
+            </div>
+            <div class="quick-action">
+              <button type="button" data-action="pesan">
+                <div class="quick-action-icon">✔</div>
+                <div>Pesan</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <article class="card card--banner" aria-label="Promo pulsa & data">
+          <div class="chip">Promo Spesial</div>
+          <div class="card__title">Kuotamu habis?</div>
+          <div class="card__subtitle card__subtitle--light">
+            Tenang, masih bisa beli pulsa dan paket data langsung dari dompet
+            digitalmu.
+          </div>
+          <div class="mt-8">
+            <button
+              class="btn btn--primary"
+              type="button"
+              id="btnBeliPulsa"
+            >
+              Beli Pulsa Sekarang
+            </button>
+          </div>
+        </article>
+
+        <section aria-label="Layanan utama" class="card">
+          <div class="card__title">Layanan</div>
+
+          <div class="service-grid mt-8">
+            <button
+              type="button"
+              class="service-item"
+              data-service="rewards"
+            >
+              <div class="service-icon">🎁</div>
+              <span>A+ Rewards</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="deals"
+            >
+              <div class="service-icon">%</div>
+              <span>Deals</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="pulsa"
+            >
+              <div class="service-icon">📶</div>
+              <span>Pulsa & Data</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="travel"
+            >
+              <div class="service-icon">✈️</div>
+              <span>Travel</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="listrik"
+            >
+              <div class="service-icon">💡</div>
+              <span>Listrik</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="playzone"
+            >
+              <div class="service-icon">▶️</div>
+              <span>Play Zone</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="cicilan"
+            >
+              <div class="service-icon">📅</div>
+              <span>Cicilan</span>
+            </button>
+            <button
+              type="button"
+              class="service-item"
+              data-service="lihat-semua"
+            >
+              <div class="service-icon">⋮</div>
+              <span>Lihat Semua</span>
+            </button>
+          </div>
+        </section>
+
+        <section aria-label="Aktivitas terbaru" class="mt-12">
+          <div class="news-item">
+            <div>
+              <span class="news-item__brand">Lazada</span>
+              <span class="news-item__text">
+                Terpantau banyak pakai dompet digital 👀
+              </span>
+            </div>
+            <span class="news-item__icon">🔥</span>
+          </div>
+          <div class="news-item">
+            <div>
+              <span class="news-item__brand">Tokopedia</span>
+              <span class="news-item__text">
+                Yuk, bayar pakai dompet digital.
+              </span>
+            </div>
+            <span class="news-item__icon">🔥</span>
+          </div>
+          <div class="news-item">
+            <div>
+              <span class="news-item__brand">Info</span>
+              <span class="news-item__text">
+                Aktifkan Feed untuk lihat promo terbaru.
+              </span>
+            </div>
+            <span class="news-item__icon">📣</span>
+          </div>
+        </section>
+
+        <section aria-label="Perlindungan saldo" class="mt-12">
+          <div class="card protection-card">
+            <div class="protection-card__badge">DANA PROTECTION</div>
+            <div class="card__title">Jaminan 100% uang kembali</div>
+            <div class="card__subtitle">
+              Cek aktivitas perlindungan akun dan transaksi kamu.
+            </div>
+            <button
+              class="btn btn--blue btn--full mt-8"
+              type="button"
+              id="btnCekProteksi"
+            >
+              Cek Aktivitas Proteksi
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <!-- AKTIVITAS -->
+      <section
+        id="screen-activity"
+        class="screen"
+        aria-labelledby="tab-activity"
+      >
+        <div class="search-box">
+          <span class="search-box-icon">🔍</span>
+          <input
+            type="search"
+            aria-label="Cari aktivitas"
+            placeholder="Cari kirim uang atau tagihan"
+          />
+        </div>
+
+        <div class="activity-header">
+          <div>Diupdate jam 01.21 • Tunggu yang terbaru ya.</div>
+          <button class="btn btn--ghost" type="button" id="btnFilter">
+            ⧉ Filter
+          </button>
+        </div>
+
+        <div class="activity-header">
+          <span class="activity-month">Desember 2025</span>
+          <button class="btn btn--ghost" type="button" id="btnStatement">
+            Statement
+          </button>
+        </div>
+
+        <div class="activity-list" aria-label="Daftar aktivitas">
+          <article class="activity-item">
+            <div class="activity-main">
+              <div class="activity-icon">💳</div>
+              <div>
+                <div class="activity-text-title">
+                  Isi Saldo dari Bank PMmax
+                </div>
+                <div class="activity-text-meta">
+                  25 Des 2025 • 13:09
+                </div>
+              </div>
+            </div>
+            <div class="activity-amount">Rp 100</div>
+          </article>
+
+          <article class="activity-item">
+            <div class="activity-main">
+              <div class="activity-icon">🛍</div>
+              <div>
+                <div class="activity-text-title">
+                  DISTRO APPAREL
+                </div>
+                <div class="activity-text-meta">
+                  24 Des 2025 • 14:39
+                </div>
+              </div>
+            </div>
+            <div class="activity-amount">-Rp 10.000</div>
+          </article>
+
+          <article class="activity-item">
+            <div class="activity-main">
+              <div class="activity-icon">↩</div>
+              <div>
+                <div class="activity-text-title">Refund</div>
+                <div class="activity-text-meta">
+                  24 Des 2025 • 13:35
+                </div>
+              </div>
+            </div>
+            <div class="activity-amount">Rp 10.000</div>
+          </article>
+
+          <article class="activity-item">
+            <div class="activity-main">
+              <div class="activity-icon">✉️</div>
+              <div>
+                <div class="activity-text-title">Kirim Kode Tunai</div>
+                <div class="activity-text-meta">
+                  24 Des 2025 • 13:30
+                </div>
+              </div>
+            </div>
+            <div class="activity-amount">-Rp 10.000</div>
+          </article>
+
+          <article class="activity-item">
+            <div class="activity-main">
+              <div class="activity-icon">＋</div>
+              <div>
+                <div class="activity-text-title">Isi Saldo</div>
+                <div class="activity-text-meta">
+                  24 Des 2025 • 13:27
+                </div>
+              </div>
+            </div>
+            <div class="activity-amount">Rp 10.000</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- DOMPET -->
+      <section id="screen-wallet" class="screen" aria-labelledby="tab-wallet">
+        <div class="search-box">
+          <span class="search-box-icon">🔍</span>
+          <input
+            type="search"
+            aria-label="Cari di Dompet"
+            placeholder="Lagi cari apa di Dompet?"
+          />
+        </div>
+
+        <div class="section-title">Metode Pembayaran • 1 Kartu</div>
+
+        <article class="wallet-card" aria-label="Kartu bank tersimpan">
+          <div class="wallet-card__header">
+            <div>
+              <div class="wallet-card__label">Simpan kartu bank</div>
+              <div class="wallet-card__title">Transaksi lebih cepat!</div>
+            </div>
+            <button
+              class="btn btn--outline"
+              type="button"
+              id="btnTambahKartu"
+            >
+              + Tambah
+            </button>
+          </div>
+
+          <div class="card__subtitle card__subtitle--light">
+            Transaksi bebas ribet dengan berbagai pilihan pembayaran, cukup
+            sekali simpan kartu untuk dipakai berkali-kali.
+          </div>
+
+          <div class="wallet-card__actions">
+            <button
+              class="btn btn--primary"
+              type="button"
+              id="btnBukaKartu"
+            >
+              Buka
+            </button>
+            <button
+              class="btn btn--outline"
+              type="button"
+              id="btnAturKartu"
+            >
+              Atur Urutan
+            </button>
+          </div>
+        </article>
+
+        <div class="wallet-curve" aria-hidden="true"></div>
+      </section>
+
+      <!-- PROFIL / SAYA -->
+      <section id="screen-profile" class="screen" aria-labelledby="tab-profile">
+        <div class="profile-header">
+          <div class="segmented-control" role="tablist" aria-label="Tipe akun">
+            <button
+              type="button"
+              id="btnTabPersonal"
+              role="tab"
+              aria-selected="true"
+              aria-pressed="true"
+            >
+              Personal
+            </button>
+            <button
+              type="button"
+              id="btnTabBisnis"
+              role="tab"
+              aria-selected="false"
+              aria-pressed="false"
+            >
+              Bisnis
+            </button>
+          </div>
+        </div>
+
+        <article class="card profile-card" aria-label="Profil pengguna">
+          <div class="profile-main">
+            <div class="avatar" aria-hidden="true">👤</div>
+            <div>
+              <div class="profile-name">Nama Pengguna</div>
+              <div class="profile-phone">08•••••••53</div>
+              <div class="profile-links mt-8">
+                <button
+                  class="btn btn--ghost"
+                  type="button"
+                  id="btnQrSaya"
+                >
+                  QR Saya
+                </button>
+                <button
+                  class="btn btn--ghost"
+                  type="button"
+                  id="btnProteksiXtra"
+                >
+                  Proteksi Xtra
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-stats">
+            <div>
+              <div class="profile-stat-title">Saldo</div>
+              <div class="profile-stat-value">Rp 309</div>
+            </div>
+            <div>
+              <div class="profile-stat-title">DANA+</div>
+              <div class="profile-stat-value">Mulai Isi</div>
+            </div>
+            <div>
+              <div class="profile-stat-title">DANA Goals</div>
+              <div class="profile-stat-value">Buat Impian</div>
+            </div>
+          </div>
+        </article>
+
+        <section class="menu-list" aria-label="Menu pengaturan">
+          <button type="button" class="menu-item" data-menu="bills">
+            <div class="menu-item__left">
+              <div class="menu-item__icon">🧾</div>
+              <div>
+                <div class="menu-item__title">My Bills</div>
+                <div class="menu-item__subtitle">
+                  Kelola tagihan berulang di sini
+                </div>
+              </div>
+            </div>
+            <div class="menu-item__chevron">›</div>
+          </button>
+
+          <button type="button" class="menu-item" data-menu="voucher">
+            <div class="menu-item__left">
+              <div class="menu-item__icon">🏷</div>
+              <div>
+                <div class="menu-item__title">Voucher Promo</div>
+                <div class="menu-item__subtitle">
+                  Cek voucher yang masih bisa dipakai
+                </div>
+              </div>
+            </div>
+            <div class="menu-item__chevron">›</div>
+          </button>
+
+          <button type="button" class="menu-item" data-menu="settings">
+            <div class="menu-item__left">
+              <div class="menu-item__icon">⚙</div>
+              <div>
+                <div class="menu-item__title">Settings</div>
+                <div class="menu-item__subtitle">
+                  Atur keamanan, notifikasi, dan lainnya
+                </div>
+              </div>
+            </div>
+            <div class="menu-item__chevron">›</div>
+          </button>
+
+          <button type="button" class="menu-item" data-menu="info">
+            <div class="menu-item__left">
+              <div class="menu-item__icon">ℹ</div>
+              <div>
+                <div class="menu-item__title">General Info</div>
+                <div class="menu-item__subtitle">
+                  Informasi seputar akun dan aplikasi
+                </div>
+              </div>
+            </div>
+            <div class="menu-item__chevron">›</div>
+          </button>
+
+          <button type="button" class="menu-item" data-menu="bantuan">
+            <div class="menu-item__left">
+              <div class="menu-item__icon">💬</div>
+              <div>
+                <div class="menu-item__title">Butuh Bantuan?</div>
+                <div class="menu-item__subtitle">
+                  DIANA siap membantu kapan saja
+                </div>
+              </div>
+            </div>
+            <div class="menu-item__chevron">›</div>
+          </button>
+
+          <div
+            class="card"
+            style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:2px"
+          >
+            Versi 2.109.2 • Prototipe HTML
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav" aria-label="Navigasi utama">
+      <button
+        class="bottom-nav__item bottom-nav__item--active"
+        id="tab-home"
+        data-target="screen-home"
+        data-title="Beranda"
+        type="button"
+      >
+        <span class="bottom-nav__icon">🏠</span>
+        <span>Beranda</span>
+      </button>
+
+      <button
+        class="bottom-nav__item"
+        id="tab-activity"
+        data-target="screen-activity"
+        data-title="Aktivitas"
+        type="button"
+      >
+        <span class="bottom-nav__icon">📄</span>
+        <span>Aktivitas</span>
+      </button>
+
+      <div class="bottom-nav__pay">
+        <button
+          class="pay-button"
+          type="button"
+          id="payButton"
+          aria-label="Buka menu pembayaran"
+        >
+          ⌾
+        </button>
+      </div>
+
+      <button
+        class="bottom-nav__item"
+        id="tab-wallet"
+        data-target="screen-wallet"
+        data-title="Dompet"
+        type="button"
+      >
+        <span class="bottom-nav__icon">👛</span>
+        <span>Dompet</span>
+      </button>
+
+      <button
+        class="bottom-nav__item"
+        id="tab-profile"
+        data-target="screen-profile"
+        data-title="Saya"
+        type="button"
+      >
+        <span class="bottom-nav__icon">👤</span>
+        <span>Saya</span>
+      </button>
+    </nav>
+
+    <!-- MODAL PAY -->
+    <div
+      class="modal-backdrop"
+      id="payModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="payModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal">
+        <div class="modal__header">
+          <div class="modal__title" id="payModalTitle">Bayar dengan QR</div>
+          <button
+            class="modal__close"
+            type="button"
+            aria-label="Tutup"
+            id="closePayModal"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="modal__content">
+          Tunjukkan kode QR berikut ke kasir atau temanmu untuk menerima
+          pembayaran.
+        </div>
+
+        <div class="qr-placeholder">
+          <div class="qr-code-box" aria-hidden="true"></div>
+          <div style="font-size: 11px; margin-top: 4px">
+            QR statis (hanya contoh, tidak benar‑benar terhubung)
+          </div>
+        </div>
+
+        <div class="modal__actions">
+          <button
+            class="btn btn--ghost btn--full"
+            type="button"
+            id="btnSimpanQr"
+          >
+            Simpan ke Galeri
+          </button>
+          <button
+            class="btn btn--blue btn--full"
+            type="button"
+            id="btnBagikanQr"
+          >
+            Bagikan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const screens = document.querySelectorAll(".screen");
+      const navItems = document.querySelectorAll(".bottom-nav__item");
+      const appBarTitle = document.getElementById("appBarTitle");
+
+      // Navigasi tab bawah
+      navItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const targetId = item.getAttribute("data-target");
+          const title = item.getAttribute("data-title");
+
+          screens.forEach((screen) => {
+            screen.classList.toggle(
+              "screen--active",
+              screen.id === targetId
+            );
+          });
+
+          navItems.forEach((nav) =>
+            nav.classList.toggle(
+              "bottom-nav__item--active",
+              nav === item
+            )
+          );
+
+          if (title) appBarTitle.textContent = title;
+        });
+      });
+
+      // Modal PAY
+      const payButton = document.getElementById("payButton");
+      const payModal = document.getElementById("payModal");
+      const closePayModal = document.getElementById("closePayModal");
+
+      const openModal = () => {
+        payModal.classList.add("modal-backdrop--open");
+        payModal.setAttribute("aria-hidden", "false");
+      };
+
+      const closeModal = () => {
+        payModal.classList.remove("modal-backdrop--open");
+        payModal.setAttribute("aria-hidden", "true");
+      };
+
+      payButton.addEventListener("click", openModal);
+      closePayModal.addEventListener("click", closeModal);
+      payModal.addEventListener("click", (e) => {
+        if (e.target === payModal) closeModal();
+      });
+
+      // Tombol sederhana dengan alert agar terasa "hidup"
+      const showInfo = (msg) => alert(msg);
+
+      document
+        .getElementById("btnBeliPulsa")
+        .addEventListener("click", () =>
+          showInfo("Fitur beli pulsa hanya contoh pada prototipe ini.")
+        );
+
+      document
+        .getElementById("btnCekProteksi")
+        .addEventListener("click", () =>
+          showInfo("Di sini nanti kamu bisa melihat detail proteksi akun.")
+        );
+
+      document
+        .getElementById("btnFilter")
+        .addEventListener("click", () =>
+          showInfo("Filter aktivitas: hari ini, minggu ini, atau custom.")
+        );
+
+      document
+        .getElementById("btnStatement")
+        .addEventListener("click", () =>
+          showInfo("Statement bulanan akan diunduh dalam bentuk PDF.")
+        );
+
+      document
+        .getElementById("btnTambahKartu")
+        .addEventListener("click", () =>
+          showInfo("Form tambah kartu bank belum dihubungkan ke backend.")
+        );
+
+      document
+        .getElementById("btnBukaKartu")
+        .addEventListener("click", () =>
+          showInfo("Menampilkan daftar kartu bank yang sudah tersimpan.")
+        );
+
+      document
+        .getElementById("btnAturKartu")
+        .addEventListener("click", () =>
+          showInfo("Atur prioritas kartu untuk pembayaran otomatis.")
+        );
+
+      document
+        .getElementById("btnQrSaya")
+        .addEventListener("click", () =>
+          showInfo("QR pribadi akan ditampilkan di sini.")
+        );
+
+      document
+        .getElementById("btnProteksiXtra")
+        .addEventListener("click", () =>
+          showInfo("Kelola paket Proteksi Xtra kamu.")
+        );
+
+      // Aksi pay modal
+      document
+        .getElementById("btnSimpanQr")
+        .addEventListener("click", () =>
+          showInfo("Kode QR disimpan (simulasi).")
+        );
+      document
+        .getElementById("btnBagikanQr")
+        .addEventListener("click", () =>
+          showInfo("Bagikan QR lewat aplikasi lain (simulasi).")
+        );
+
+      // Quick actions
+      document
+        .querySelectorAll(".quick-action button")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const action = btn.getAttribute("data-action");
+            showInfo("Kamu menekan menu: " + action);
+          });
+        });
+
+      // Service grid
+      document
+        .querySelectorAll(".service-item")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const service = btn.getAttribute("data-service");
+            showInfo("Layanan " + service + " belum diaktifkan di prototipe.");
+          });
+        });
+
+      // Menu profil
+      document
+        .querySelectorAll(".menu-item")
+        .forEach((item) => {
+          item.addEventListener("click", () =>
+            showInfo(
+              "Menu " +
+                item.getAttribute("data-menu") +
+                " akan membuka halaman baru."
+            )
+          );
+        });
+
+      // Toggle saldo terlihat / tersembunyi
+      const btnToggleBalance = document.getElementById("btnToggleBalance");
+      const balanceAmount = document.querySelector(".balance-card__amount");
+      let hidden = false;
+      btnToggleBalance.addEventListener("click", () => {
+        hidden = !hidden;
+        balanceAmount.textContent = hidden ? "•••••" : "Rp 309";
+        btnToggleBalance.textContent = hidden
+          ? "👁 Tampilkan"
+          : "👁 Sembunyikan";
+      });
+
+      // Tab Personal / Bisnis (hanya state visual)
+      const btnTabPersonal = document.getElementById("btnTabPersonal");
+      const btnTabBisnis = document.getElementById("btnTabBisnis");
+
+      const setProfileTab = (tab) => {
+        const isPersonal = tab === "personal";
+        btnTabPersonal.setAttribute(
+          "aria-pressed",
+          isPersonal ? "true" : "false"
+        );
+        btnTabPersonal.setAttribute(
+          "aria-selected",
+          isPersonal ? "true" : "false"
+        );
+        btnTabBisnis.setAttribute(
+          "aria-pressed",
+          !isPersonal ? "true" : "false"
+        );
+        btnTabBisnis.setAttribute(
+          "aria-selected",
+          !isPersonal ? "true" : "false"
+        );
+        showInfo(
+          "Mode profil diubah ke " + (isPersonal ? "Personal" : "Bisnis")
+        );
+      };
+
+      btnTabPersonal.addEventListener("click", () =>
+        setProfileTab("personal")
+      );
+      btnTabBisnis.addEventListener("click", () => setProfileTab("bisnis"));
+    });
+  </script>
+</body>
+</html>
