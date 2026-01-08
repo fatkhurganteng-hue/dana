@@ -829,6 +829,42 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
+    <!-- === MODE FIGMA: tampilkan SEMUA UI di satu halaman === -->
+<style>
+  /* halaman jadi satu kolom panjang, enak di-screenshot / di-import plugin */
+  body {
+    background: #f4f5f7;
+    display: block;
+  }
+
+  .app {
+    max-width: 428px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+
+  /* semua screen selalu kelihatan */
+  .screen {
+    display: block !important;
+    padding-bottom: 48px;
+    border-bottom: 1px dashed #d1d5db;
+    margin-bottom: 32px;
+  }
+
+  /* bottom nav jadi elemen biasa (tidak nempel di bawah viewport) */
+  .bottom-nav {
+    position: static;
+    transform: none;
+    box-shadow: none;
+    margin-top: 8px;
+    border-radius: 16px;
+  }
+
+  /* hilangkan modal PAY supaya tidak menutupi tampilan ketika di‑capture */
+  .modal-backdrop {
+    display: none !important;
+  }
+</style>
   </style>
 </head>
 
